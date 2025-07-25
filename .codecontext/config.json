@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "mode": "memory-execution",
+  "projectId": "7adaaac96835a2df",
+  "projectName": "aimemoryengine",
+  "createdAt": "2025-07-25T17:50:11.492Z",
+  "features": {
+    "memory": true,
+    "execution": true,
+    "intelligence": false
+  },
+  "executionEngine": {
+    "port": 3001,
+    "sandboxDir": "C:\\Users\\scorp\\dev\\aimemoryengine\\.codecontext\\sandbox",
+    "supportedLanguages": [
+      "javascript",
+      "typescript",
+      "python",
+      "go",
+      "rust"
+    ]
+  }
+}
