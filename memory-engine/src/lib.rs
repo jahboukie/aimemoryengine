@@ -4,6 +4,7 @@ pub mod memory;
 pub mod parser;
 pub mod storage;
 pub mod watcher;
+pub mod licensing;
 
 pub use entities::*;
 pub use relationships::*;
@@ -11,3 +12,4 @@ pub use memory::*;
 pub use parser::*;
 pub use storage::*;
 pub use watcher::*;
+pub use licensing::*;

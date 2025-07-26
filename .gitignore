@@ -1,101 +1,93 @@
 
-# Rust
-/target/
-**/*.rs.bk
-*.pdb
+# =============================================================================
+# AI MEMORY ENGINE - SECURE .GITIGNORE
+# =============================================================================
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment variables (ALL env files with secrets)
+# CRITICAL: Environment files with secrets (NEVER COMMIT THESE!)
 .env
 .env.*
 .env.keygen
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 
-# Temporary files
-*.tmp
-*.temp
+# License files and user data
+.aimemoryengine/
+license.json
+*.lic
 
-*.md
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
-# Build artifacts
-dist/
-build/
-
-# Node modules (if any)
-node_modules/
-
-# Test artifacts
-test_example.js
-test_example.py
-
-# Rust
+# =============================================================================
+# RUST BUILD ARTIFACTS
+# =============================================================================
 /target/
 **/*.rs.bk
 *.pdb
+Cargo.lock
 
-# IDE
+# =============================================================================
+# IDE AND EDITOR FILES
+# =============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.vim/
+.netrwhist
 
-# OS
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
+
+# Windows
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Logs
+# Linux
+*~
+.directory
+
+# =============================================================================
+# LOGS AND TEMPORARY FILES
+# =============================================================================
 *.log
-
-# Environment variables (except .env.keygen which we need)
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Temporary files
 *.tmp
 *.temp
+*.bak
+*.backup
 
-# Build artifacts
+# =============================================================================
+# BUILD AND DISTRIBUTION
+# =============================================================================
 dist/
 build/
+release/
 
-# Node modules (if any)
+# =============================================================================
+# DEVELOPMENT AND TESTING
+# =============================================================================
 node_modules/
+test_example.*
+*.test
+coverage/
 
-# Test artifacts
-test_example.js
-test_example.py
-
-# AI Memory Engine specific
-.aimemoryengine/
-*.db
-*.sqlite
+# =============================================================================
+# GENERATED FILES
+# =============================================================================
+generate_fingerprint.ps1

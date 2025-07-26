@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 use colored::*;
-use memory_engine::{ProjectMemory, CodeParser, MemoryStorage};
+use memory_engine::{ProjectMemory, CodeParser, MemoryStorage, LicenseManager};
 use std::path::Path;
+use chrono::{DateTime, Utc};
 
 #[derive(Parser)]
 #[command(name = "aimemoryengine")]
@@ -23,6 +24,21 @@ enum Commands {
     Analyze { file_path: String },
     /// Reset project memory
     Reset,
+    /// Activate license with key
+    License {
+        #[command(subcommand)]
+        action: LicenseAction
+    },
+}
+
+#[derive(Subcommand)]
+enum LicenseAction {
+    /// Activate license with provided key
+    Activate { key: String },
+    /// Check current license status
+    Status,
+    /// Remove current license
+    Remove,
 }
 
 fn get_db_path() -> anyhow::Result<String> {
@@ -36,6 +52,48 @@ fn get_db_path() -> anyhow::Result<String> {
 
     let db_path = db_dir.join("memory.db");
     Ok(db_path.to_string_lossy().to_string())
+}
+
+async fn check_license_for_command(command_name: &str) -> anyhow::Result<()> {
+    // Skip license check for license management commands and basic info
+    match command_name {
+        "license" | "status" | "init" => return Ok(()),
+        _ => {}
+    }
+
+    match LicenseManager::new() {
+        Ok(license_manager) => {
+            match license_manager.check_license(None).await {
+                Ok(validation) => {
+                    if !validation.valid {
+                        println!("{}", "❌ Invalid or expired license. Please activate a valid license.".red());
+                        println!("Use: {} to activate your license", "aimemoryengine license activate <your-key>".yellow());
+                        std::process::exit(1);
+                    }
+
+                    // Check expiration
+                    if let Some(expires_at) = validation.expires_at {
+                        let days_until_expiry = (expires_at - Utc::now()).num_days();
+                        if days_until_expiry <= 7 && days_until_expiry > 0 {
+                            println!("{}", format!("⚠️  License expires in {} days", days_until_expiry).yellow());
+                        }
+                    }
+                }
+                Err(_) => {
+                    println!("{}", "⚠️  Could not validate license (offline mode). Some features may be limited.".yellow());
+                    // Allow offline usage with cached license
+                }
+            }
+        }
+        Err(_) => {
+            println!("{}", "❌ No license found. This is a commercial product.".red());
+            println!("Get your license at: {}", "https://aimemoryengine.com/pricing".blue());
+            println!("Then activate with: {} ", "aimemoryengine license activate <your-key>".yellow());
+            std::process::exit(1);
+        }
+    }
+
+    Ok(())
 }
 
 #[tokio::main]
@@ -166,6 +224,122 @@ async fn main() -> anyhow::Result<()> {
                 println!("{}", "✅ Memory database deleted successfully!".green());
             } else {
                 println!("{}", "ℹ️  No memory database found to reset.".yellow());
+            }
+        }
+
+        Commands::License { action } => {
+            match action {
+                LicenseAction::Activate { key } => {
+                    println!("{}", "🔐 Activating license...".cyan());
+
+                    match LicenseManager::new() {
+                        Ok(license_manager) => {
+                            match license_manager.validate_license(&key).await {
+                                Ok(validation) => {
+                                    if validation.valid {
+                                        license_manager.save_license(&key, &validation)?;
+                                        println!("{}", "✅ License activated successfully!".green());
+
+                                        if let Some(expires_at) = validation.expires_at {
+                                            println!("License expires: {}", expires_at.format("%Y-%m-%d %H:%M:%S UTC"));
+                                        }
+
+                                        if let Some(usage_count) = validation.usage_count {
+                                            if let Some(usage_limit) = validation.usage_limit {
+                                                println!("Usage: {}/{}", usage_count, usage_limit);
+                                            } else {
+                                                println!("Usage: {} (unlimited)", usage_count);
+                                            }
+                                        }
+                                    } else {
+                                        println!("{}", "❌ Invalid license key. Please check your key and try again.".red());
+                                        std::process::exit(1);
+                                    }
+                                }
+                                Err(e) => {
+                                    println!("{}", format!("❌ License validation failed: {}", e).red());
+                                    std::process::exit(1);
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            println!("{}", format!("❌ License manager error: {}", e).red());
+                            println!("Make sure you have proper Keygen configuration.");
+                            std::process::exit(1);
+                        }
+                    }
+                }
+
+                LicenseAction::Status => {
+                    println!("{}", "📋 License Status".blue().bold());
+
+                    match LicenseManager::new() {
+                        Ok(license_manager) => {
+                            match license_manager.load_cached_license() {
+                                Ok(Some(cached_license)) => {
+                                    println!("License Key: {}****", &cached_license.key[..8]);
+
+                                    if let Some(validation) = &cached_license.cached_validation {
+                                        if validation.valid {
+                                            println!("Status: {}", "✅ Active".green());
+                                        } else {
+                                            println!("Status: {}", "❌ Invalid".red());
+                                        }
+
+                                        if let Some(expires_at) = validation.expires_at {
+                                            let days_until_expiry = (expires_at - Utc::now()).num_days();
+                                            println!("Expires: {} ({} days)",
+                                                expires_at.format("%Y-%m-%d %H:%M:%S UTC"),
+                                                days_until_expiry);
+                                        }
+
+                                        if let Some(usage_count) = validation.usage_count {
+                                            if let Some(usage_limit) = validation.usage_limit {
+                                                println!("Usage: {}/{}", usage_count, usage_limit);
+                                            } else {
+                                                println!("Usage: {} (unlimited)", usage_count);
+                                            }
+                                        }
+                                    }
+
+                                    if let Some(last_validated) = cached_license.last_validated {
+                                        println!("Last Validated: {}", last_validated.format("%Y-%m-%d %H:%M:%S UTC"));
+                                    }
+                                }
+                                Ok(None) => {
+                                    println!("{}", "❌ No license found.".red());
+                                    println!("Use: {} to activate your license", "aimemoryengine license activate <your-key>".yellow());
+                                }
+                                Err(e) => {
+                                    println!("{}", format!("❌ Error reading license: {}", e).red());
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            println!("{}", format!("❌ License manager error: {}", e).red());
+                        }
+                    }
+                }
+
+                LicenseAction::Remove => {
+                    println!("{}", "🗑️  Removing license...".red());
+
+                    match LicenseManager::new() {
+                        Ok(license_manager) => {
+                            match license_manager.remove_license() {
+                                Ok(()) => {
+                                    println!("{}", "✅ License removed successfully!".green());
+                                }
+                                Err(e) => {
+                                    println!("{}", format!("❌ Error removing license: {}", e).red());
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            println!("{}", format!("❌ License manager error: {}", e).red());
+                        }
+                    }
+                }
             }
         }
     }

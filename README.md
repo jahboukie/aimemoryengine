@@ -1,14 +1,24 @@
 # 🧠 AI Memory Engine
 
-**Persistent project memory for AI coding assistants - No more explaining the same codebase repeatedly.**
+**Professional-grade persistent project memory for AI coding assistants - No more explaining the same codebase repeatedly.**
 
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-8%2F8%20passing-green.svg)](#testing)
+[![License](https://img.shields.io/badge/license-Commercial-blue.svg)](#license)
+[![Tests](https://img.shields.io/badge/tests-passing-green.svg)](#testing)
+[![Security](https://img.shields.io/badge/security-enterprise--grade-green.svg)](SECURITY.md)
 
 ## 🎯 Problem Solved
 
 Current AI coding assistants suffer from "AI amnesia" - they forget your codebase context between conversations, forcing you to repeatedly explain the same code structure, dependencies, and patterns. **AI Memory Engine** solves this by providing persistent, local project memory.
+
+## 💰 Pricing
+
+**🎉 Introductory Offer: $49/year**
+- ✅ Individual developer license
+- ✅ Node-locked to your machine
+- ✅ 7-day free trial
+- ✅ Full feature access
+- ✅ Priority support
 
 ## ✨ Features
 
@@ -18,6 +28,7 @@ Current AI coding assistants suffer from "AI amnesia" - they forget your codebas
 - 💻 **Local-First** - No cloud dependencies, works offline
 - ⚡ **Fast & Lightweight** - Rust core for performance
 - 🛠️ **Developer-Friendly** - Simple CLI interface
+- 🔐 **Professional Licensing** - Enterprise-grade security and activation
 
 ## 🚀 Quick Start
 
@@ -32,6 +43,16 @@ cd aimemoryengine
 cargo build --release
 
 # The binary will be available at target/release/aimemoryengine
+```
+
+### License Activation
+
+```bash
+# Activate your license (required first step)
+aimemoryengine license activate "your-license-key-here"
+
+# Check license status
+aimemoryengine license status
 ```
 
 ### Usage
@@ -120,7 +141,9 @@ We welcome contributions! This project is being developed using dogfooding - we 
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This software is licensed under a commercial license. Purchase required for production use.
+
+**Security:** See [SECURITY.md](SECURITY.md) for detailed security information.
 
 ## 🎯 Target Audience
 
